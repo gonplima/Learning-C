@@ -1,0 +1,65 @@
+#include <stdio.h>
+
+int main() {
+    char mapa[6][6];
+    char op;
+    int i, j;
+    int pos_x = 3;
+    int pos_y = 3;
+
+    for (i = 0; i < 6; i++) {
+        for (j = 0; j < 6; j++) {
+            mapa[i][j] = ' ';
+        }
+    }
+    mapa[pos_x][pos_y] = '#';
+
+    do {
+        for (i = 0; i < 6; i++) {
+            for (j = 0; j < 6; j++) {
+                printf("%c ", mapa[i][j]);
+            }
+            printf("\n");
+        }
+
+        printf("Digite o comando (o/l/n/s para mover, x para sair): ");
+        scanf(" %c", &op);
+
+        switch (op) {
+            case 'n':
+                if (pos_x > 0) {
+                    mapa[pos_x][pos_y] = ' ';
+                    pos_x--;
+                    mapa[pos_x][pos_y] = '#';
+                }
+                break;
+            case 's':
+                if (pos_x < 5) {
+                    mapa[pos_x][pos_y] = ' ';
+                    pos_x++;
+                    mapa[pos_x][pos_y] = '#';
+                }
+                break;
+            case 'l':
+                if (pos_y < 5) {
+                    mapa[pos_x][pos_y] = ' ';
+                    pos_y++;
+                    mapa[pos_x][pos_y] = '#';
+                }
+                break;
+            case 'o':
+                if (pos_y > 0) {
+                    mapa[pos_x][pos_y] = ' ';
+                    pos_y--;
+                    mapa[pos_x][pos_y] = '#';
+                }
+                break;
+            default:
+                if (op != 'x') {
+                    printf("Comando inválido! Use o/l/n/s para mover ou x para sair.\n");
+                }
+        }
+    } while (op != 'x');
+
+    return 0;
+}
