@@ -1,0 +1,65 @@
+Exercicio 1
+#include <stdio.h>
+#include <string.h>
+
+struct Pessoa {
+    char nome[100];
+    char rg[15];
+};
+
+void menu() {
+    printf("1 - Cadastrar\n");
+    printf("2 - Procurar\n");
+    printf("0 - Sair\n");
+}
+
+int main() {
+    struct Pessoa cadastro[9];
+    int totalCadastros = 0;
+    int op;
+
+    do {
+        menu();
+        scanf("%d", &op);
+
+        switch (op) {
+            case 1:
+                if (totalCadastros < 9) {
+                    printf("Digite o nome e o RG (separados por espaço): ");
+                    scanf("%s %s", cadastro[totalCadastros].nome, cadastro[totalCadastros].rg);
+                    printf("Cadastro realizado com sucesso!\n");
+                    totalCadastros++;
+                } else {
+                    printf("Limite de cadastro atingido!\n");
+                }
+                break;
+            case 2:
+                if (totalCadastros > 0) {
+                    char rg[15];
+                    int encontrado = 0;
+                    printf("Digite o RG que deseja procurar: ");
+                    scanf("%s", rg);
+                    for (int i = 0; i < totalCadastros; i++) {
+                        if (strcmp(rg, cadastro[i].rg) == 0) {
+                            printf("Nome: %s\n", cadastro[i].nome);
+                            encontrado = 1;
+                            break;
+                        }
+                    }
+                    if (!encontrado) {
+                        printf("RG não encontrado!\n");
+                    }
+                } else {
+                    printf("Nenhum cadastro para procurar.\n");
+                }
+                break;
+            case 0:
+                printf("Saindo do programa.\n");
+                break;
+            default:
+                printf("Opção inválida. Por favor, escolha 1, 2 ou 0.\n");
+        }
+    } while (op != 0);
+
+    return 0;
+}
