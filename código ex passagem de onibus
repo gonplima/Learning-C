@@ -1,0 +1,57 @@
+#include <stdio.h>
+
+int main() {
+    struct Poltrona {
+        char cpf[12];
+    };
+
+    struct Poltrona assentos[23];
+    int i, k, op;
+
+    for (i = 0; i < 23; i += 2) {
+        printf("Insira o CPF do passageiro para a poltrona %d: ", i + 1);
+        scanf(" %s", assentos[i].cpf);
+    }
+
+    for (i = 1; i < 23; i += 2) {
+        printf("Insira o CPF do passageiro para a poltrona %d: ", i + 1);
+        scanf(" %s", assentos[i].cpf);
+    }
+
+    printf("\n");
+
+    for (i = 0; i < 23; i++) {
+        printf("CPF do passageiro na poltrona %d: %s\n", i + 1, assentos[i].cpf);
+    }
+
+    printf("\n");
+
+    do {
+        printf("Deseja cancelar alguma poltrona? 1 - Sim, 2 - Não: ");
+        scanf(" %d", &op);
+
+        switch (op) {
+            case 1:
+                printf("Digite o número da poltrona que deseja cancelar: ");
+                scanf(" %d", &k);
+                if (k >= 1 && k <= 23) {
+                    assentos[k - 1].cpf[0] = '\0'; // Marca a poltrona como vazia
+                } else {
+                    printf("Número de poltrona inválido.\n");
+                }
+                break;
+            case 2:
+                for (i = 0; i < 23; i++) {
+                    if (assentos[i].cpf[0] != '\0') {
+                        printf("Poltrona %d ocupada pelo CPF: %s\n", i + 1, assentos[i].cpf);
+                    }
+                }
+                break;
+            default:
+                printf("Opção inválida. Escolha 1 para cancelar ou 2 para sair.\n");
+        }
+    } while (op != 2);
+
+    return 0;
+}
+
