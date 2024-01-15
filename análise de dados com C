@@ -1,0 +1,158 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct loja {
+  int CodPedido;
+  long int DtPedido;
+  int CodFilial;
+  int CodProduto;
+  int Qtd;
+  float VlUnit;
+} Loja;
+
+int compareDtPedido(const void *a, const void *b) {
+  long int diff = ((Loja *)a)->DtPedido - ((Loja *)b)->DtPedido;
+  if (diff > 0) return 1;
+  if (diff < 0) return -1;
+  return 0;
+}
+
+int compareCodFilial(const void *a, const void *b) {
+  long int diff = ((Loja *)a)->CodFilial - ((Loja *)b)->CodFilial;
+  if (diff > 0) return 1;
+  if (diff < 0) return -1;
+  return 0;
+}
+
+void readFile(int *totalSize, int *currentSize, Loja **loja, Loja **novo_vetor) {
+  FILE *arq;
+  char nomedoarquivo[100];
+  printf("Digite o nome do arquivo.csv utilizado: ");
+  scanf("%s", nomedoarquivo);
+  arq = fopen(nomedoarquivo, "r");
+  char cabecalho[100];
+  if (arq != NULL) {
+    printf("leitura iniciada\n");
+    fgets(cabecalho, 100, arq);
+    while (!feof(arq)) {
+      if (*currentSize == *totalSize - 1) {
+        *totalSize = *totalSize * 3;
+        *novo_vetor = (Loja *)realloc(*loja, (*totalSize) * sizeof(Loja));
+        if (*novo_vetor == NULL) {
+          printf("Falha na alocação de memória.\n");
+          exit(EXIT_FAILURE);
+        }
+        *loja = *novo_vetor;
+      }
+      fscanf(arq, "%d, %ld, %d, %d, %d, %f\n", &(*loja)[*currentSize].CodPedido,
+             &(*loja)[*currentSize].DtPedido, &(*loja)[*currentSize].CodFilial,
+             &(*loja)[*currentSize].CodProduto, &(*loja)[*currentSize].Qtd,
+             &(*loja)[*currentSize].VlUnit);
+      (*currentSize)++;
+    }
+  }
+  fclose(arq);
+}
+
+void arqOrg(Loja *loja, int *totalSize, Loja *novo_vetor, int currentSize) {
+  FILE *orgArq;
+  if (orgArq == NULL) {
+    orgArq = fopen("rel_pedidos.csv", "w");
+  }
+  else
+  {
+    orgArq = fopen("rel_pedidos.csv", "a");
+  qsort(loja, currentSize, sizeof(Loja), compareDtPedido);
+  }
+
+  fprintf(orgArq, "CodPedido;DtPedido;CodFilial;QtdTotalItens;TotalPedido\n");
+
+  int i = 0;
+  while (i < currentSize) {
+    int codPedidoAtual = loja[i].CodPedido;
+    int qtdTotalItens = 0;
+    float totalPedido = 0.0;
+
+    while (i < currentSize && loja[i].CodPedido == codPedidoAtual) {
+      qtdTotalItens += loja[i].Qtd;
+      totalPedido += loja[i].Qtd * loja[i].VlUnit;
+      i++;
+    }
+
+    if (codPedidoAtual != 0) {
+      fprintf(orgArq, "%d;%ld;%d;%d;%f\n",
+              codPedidoAtual, loja[i - 1].DtPedido,
+              loja[i - 1].CodFilial, qtdTotalItens, totalPedido);
+    }
+  }
+
+  fclose(orgArq);
+}
+
+void relFilial(Loja *loja, int *totalSize, Loja *novo_vetor, int currentSize){
+    FILE *filialOrg;
+    if (filialOrg == NULL) 
+    {
+      filialOrg = fopen("rel_filial.csv","w");
+      fprintf(filialOrg, "CodFilial;TotalQtd;FatTotal\n");
+    }
+  else
+    {
+      filialOrg = fopen("rel_filial.csv","a");
+    }
+
+    
+    qsort(loja, currentSize, sizeof(Loja), compareCodFilial);
+
+
+    int i = 0;
+    while (i < currentSize) {
+        int codFilialAtual = loja[i].CodFilial;
+        int TotalQtd = 0;
+        float FatTotal = 0.0;
+
+        while (i < currentSize && loja[i].CodFilial == codFilialAtual) {
+            TotalQtd += loja[i].Qtd;
+            FatTotal += loja[i].Qtd * loja[i].VlUnit;
+            i++;
+        }
+        if (codFilialAtual != 0) {
+            fprintf(filialOrg, "%d;%d;%lf\n",
+                codFilialAtual, TotalQtd, FatTotal);
+    }
+    }
+}
+
+int menu(int *totalSize, int *currentSize, Loja **loja, Loja **novo_vetor) {
+  int escolha;
+  printf("Escolha uma das opções abaixo\n");
+  printf("1 - ordenar\n");
+  printf("0 - Finalizar\n");
+  scanf(" %d", &escolha);
+  switch (escolha) {
+    case 1:
+      readFile(totalSize, currentSize, loja, novo_vetor);
+      arqOrg(*loja, totalSize, *novo_vetor, *currentSize);
+      relFilial(*loja, totalSize, *novo_vetor, *currentSize);
+      return 1;
+    case 0:
+      printf("Encerrando o adicionamento de carga.\n");
+      return 0;
+    default:
+      printf("Opção desconhecida. Tente novamente.\n");
+      return 1;
+  }
+}
+
+int main(void) {
+  int totalSize = 50;
+  int currentSize = 0;
+  Loja *loja = (Loja *)malloc(totalSize * sizeof(Loja));
+  Loja *novo_vetor = NULL;
+
+  while (menu(&totalSize, &currentSize, &loja, &novo_vetor)) {
+  }
+
+  free(loja);
+  return 0;
+}
